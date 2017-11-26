@@ -1,161 +1,158 @@
 
-javascript:
+// Graphight's Support Allocation November 15th 2017
 
-    // Graphight's Support Allocation November 15th 2017
+// You are located on the correct tab view, initiate main function
+if (document.URL.match(/mode=units&type=away_detail&group=0&page=-1&type=away_detail&filter_villages=1/)) {
 
-    // You are located on the correct tab view, initiate main function
-    if (document.URL.match(/mode=units&type=away_detail&group=0&page=-1&type=away_detail&filter_villages=1/)) {
+    // This section contains all the setup for the pop-up
+    let TWDisplay;
+    (function() {
+        'use strict';
+        TWDisplay = {
+            MAX_WIDTH: 1300,
+            closeCallback: null,
+            show: function(id, content, closeCallback, options) {
+                options = $.extend({
+                    class_name: '',
+                    close_from_fader: true
+                }, options);
+                this.closeCallback = closeCallback;
 
-        // This section contains all the setup for the pop-up
-        let TWDisplay;
-        (function() {
-            'use strict';
-            TWDisplay = {
-                MAX_WIDTH: 1300,
-                closeCallback: null,
-                show: function(id, content, closeCallback, options) {
-                    options = $.extend({
-                        class_name: '',
-                        close_from_fader: true
-                    }, options);
-                    this.closeCallback = closeCallback;
-
-                    // How the pop-up enters
-                    let fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement,
-                        container = fullscreenElement || 'body',
-                        $container = $('.popup_box_container'),
-                        $box, $fader, $content, show_anim = false;
-                    if (!$container.length) {
-                        show_anim = true;
-                        $container = $('<div class="popup_box_container" />');
-                        $box = $('<div class="popup_box" />').attr('id', 'popup_box_' + id).addClass(options.class_name).data('name', id).appendTo($container);
-                        $fader = $('<div class="fader" />').appendTo($container);
-                        $content = $('<div class="popup_box_content" />').appendTo($box);
-                        $container.appendTo($(container))
-                    } else {
-                        $box = $container.find('.popup_box');
-                        if ($box.data('name') !== id) {
-                            TWDisplay.close();
-                            TWDisplay.show(id, content, closeCallback, options);
-                            return
-                        }
-                        $content = $container.find('.popup_box_content');
-                        $box.css('width', 'auto')
+                // How the pop-up enters
+                let fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement,
+                    container = fullscreenElement || 'body',
+                    $container = $('.popup_box_container'),
+                    $box, $fader, $content, show_anim = false;
+                if (!$container.length) {
+                    show_anim = true;
+                    $container = $('<div class="popup_box_container" />');
+                    $box = $('<div class="popup_box" />').attr('id', 'popup_box_' + id).addClass(options.class_name).data('name', id).appendTo($container);
+                    $fader = $('<div class="fader" />').appendTo($container);
+                    $content = $('<div class="popup_box_content" />').appendTo($box);
+                    $container.appendTo($(container))
+                } else {
+                    $box = $container.find('.popup_box');
+                    if ($box.data('name') !== id) {
+                        TWDisplay.close();
+                        TWDisplay.show(id, content, closeCallback, options);
+                        return
                     }
+                    $content = $container.find('.popup_box_content');
+                    $box.css('width', 'auto')
+                }
 
-                    // Content container for the pop-up
-                    $content.html(content);
-                    let height_buffer = 125;
-                    if ($(window).width() < 500 || $(window).height() < $content.height() + height_buffer) {
-                        $box.addClass('mobile');
-                        $('.popup_box_content').css({
-                            'max-height': $(window).height() - (height_buffer / 2) + 'px'
-                        })
-                    }
-
-                    // Borders and window section
-                    let border_width;
-                    if (typeof window.getComputedStyle === 'function') {
-                        border_width = parseInt(getComputedStyle($box[0], null).borderLeftWidth)
-                    } else border_width = parseInt($box.css('border-left-width'));
-                    let min_width = 1000,
-                        width = Math.min(this.MAX_WIDTH, $content.width(), $(window).width() - border_width);
-                    if (width < min_width) width = min_width;
-                    if (!Modernizr.borderimage) width += 20;
-                    $box.css('width', width + 'px');
-
-                    // The close button
-                    let close_elements = options.close_from_fader ? '.fader, .popup_box_close, .popup_closer' : '.popup_box_close, .popup_closer';
-                    $container.on('click', close_elements, function() {
-                        TWDisplay.close(true);
-                        return false
-                    });
-                    if (show_anim) setTimeout(function() {
-                        $box.addClass('show')
-                    }, 50);
-                    UI.init();
-                    setTimeout(QuestArrows.init, 500)
-                },
-                close: function(by_user) {
-                    $('.popup_box_container').remove();
-                    if (TWDisplay.closeCallback) TWDisplay.closeCallback(by_user);
-                    inlinePopupClose();
-                    $('.popup_style').hide();
-                    QuestArrows.init();
-                    return false
-                },
-                fetch: function(name, screen, get_params, callback, TWDisplay_options, closeCallback) {
-                    TribalWars.get(screen, get_params, function(data) {
-                        TWDisplay.show(name, data.TWDisplay, closeCallback, TWDisplay_options);
-                        if (callback) callback()
+                // Content container for the pop-up
+                $content.html(content);
+                let height_buffer = 125;
+                if ($(window).width() < 500 || $(window).height() < $content.height() + height_buffer) {
+                    $box.addClass('mobile');
+                    $('.popup_box_content').css({
+                        'max-height': $(window).height() - (height_buffer / 2) + 'px'
                     })
                 }
+
+                // Borders and window section
+                let border_width;
+                if (typeof window.getComputedStyle === 'function') {
+                    border_width = parseInt(getComputedStyle($box[0], null).borderLeftWidth)
+                } else border_width = parseInt($box.css('border-left-width'));
+                let min_width = 1000,
+                    width = Math.min(this.MAX_WIDTH, $content.width(), $(window).width() - border_width);
+                if (width < min_width) width = min_width;
+                if (!Modernizr.borderimage) width += 20;
+                $box.css('width', width + 'px');
+
+                // The close button
+                let close_elements = options.close_from_fader ? '.fader, .popup_box_close, .popup_closer' : '.popup_box_close, .popup_closer';
+                $container.on('click', close_elements, function() {
+                    TWDisplay.close(true);
+                    return false
+                });
+                if (show_anim) setTimeout(function() {
+                    $box.addClass('show')
+                }, 50);
+                UI.init();
+                setTimeout(QuestArrows.init, 500)
+            },
+            close: function(by_user) {
+                $('.popup_box_container').remove();
+                if (TWDisplay.closeCallback) TWDisplay.closeCallback(by_user);
+                inlinePopupClose();
+                $('.popup_style').hide();
+                QuestArrows.init();
+                return false
+            },
+            fetch: function(name, screen, get_params, callback, TWDisplay_options, closeCallback) {
+                TribalWars.get(screen, get_params, function(data) {
+                    TWDisplay.show(name, data.TWDisplay, closeCallback, TWDisplay_options);
+                    if (callback) callback()
+                })
             }
-        })();
+        }
+    })();
 
 
-        // The variables
-        let main = $("#units_table")[0];
-        let villages = {};          // Global Dictionary of villages
-        let players = {};           // Global Dictionary of villages and their owner
-        let row_a_entries = main.getElementsByClassName('row_a');       // The Server splits the village counts into three
-        let row_b_entries = main.getElementsByClassName('row_b');       // types with the final being troops_present at home.
-        let total_troops = new Array(6).fill(0);
-        let total_farm = 0;
+    // The variables
+    let main = $("#units_table")[0];
+    let villages = {};          // Global Dictionary of villages
+    let players = {};           // Global Dictionary of villages and their owner
+    let row_a_entries = main.getElementsByClassName('row_a');       // The Server splits the village counts into three
+    let row_b_entries = main.getElementsByClassName('row_b');       // types with the final being troops_present at home.
+    let total_troops = new Array(6).fill(0);
+    let total_farm = 0;
 
 
-        // Global Constants
-        let unit_names = ['Spears', 'Swords', 'Archers', 'Scouts', 'Heavy Cal', 'Paladin'];
-        let farm_used = [1, 1, 1, 2, 6, 10];
+    // Global Constants
+    let unit_names = ['Spears', 'Swords', 'Archers', 'Scouts', 'Heavy Cal', 'Paladin'];
+    let farm_used = [1, 1, 1, 2, 6, 10];
 
 
-        // Loop through all of the "row a" classes, collecting relevant troop information
-        collect_troops_page(villages, row_a_entries, players);
-        // Loop through all of the "row b" classes, collecting relevant troop information
-        collect_troops_page(villages, row_b_entries, players);
+    // Loop through all of the "row a" classes, collecting relevant troop information
+    collect_troops_page(villages, row_a_entries, players);
+    // Loop through all of the "row b" classes, collecting relevant troop information
+    collect_troops_page(villages, row_b_entries, players);
 
 
-        // Sort the village keys
-        let keys = [];
-        for (let key in villages) keys.push(key);
-        keys.sort();
+    // Sort the village keys
+    let keys = [];
+    for (let key in villages) keys.push(key);
+    keys.sort();
 
 
-        // Collect table and summary text
-        let data = generate_table(villages, keys, total_troops, total_farm, farm_used, players);
-        let tbl = data[0];
-        total_troops = data[1];
-        total_farm = data[2];
-        let summary = determine_summary(total_troops, total_farm, unit_names);
+    // Collect table and summary text
+    let data = generate_table(villages, keys, total_troops, total_farm, farm_used, players);
+    let tbl = data[0];
+    total_troops = data[1];
+    total_farm = data[2];
+    let summary = determine_summary(total_troops, total_farm, unit_names);
 
 
-        // Construct the pop-up
-        let content = '<div style=max-width:1000px;>' +
-            '<h2 class="popup_box_header"><center><u><font color="green"> Graphight - Support Allocation </font></u></center></h2>' +
-            '<p><hr><font color=maroon><b><u>Allocations</u></b></font></p>' +
-            '<p> Sort based on column by clicking the respective header (toggles ascending / descending) </p>' +
-            '<p>' + tbl + '</p>' +
-            '<p><hr><font color=maroon><b><u>Troop Summary</u></b></font></p>' +
-            '<p>' + summary + '</p>' +
-            '</div>';
+    // Construct the pop-up
+    let content = '<div style=max-width:1000px;>' +
+        '<h2 class="popup_box_header"><center><u><font color="green"> Graphight - Support Allocation </font></u></center></h2>' +
+        '<p><hr><font color=maroon><b><u>Allocations</u></b></font></p>' +
+        '<p> Sort based on column by clicking the respective header (toggles ascending / descending) </p>' +
+        '<p>' + tbl + '</p>' +
+        '<p><hr><font color=maroon><b><u>Troop Summary</u></b></font></p>' +
+        '<p>' + summary + '</p>' +
+        '</div>';
 
 
-        // Calling the pop-up
-        TWDisplay.show('Support_Allocation', content);
-        $("#go_man").click(function() {
-            window.location.assign(game_data.link_base_pure + "place");
-        });
-        $("#close_this").click(function() {let close_this = document.getElementsByClassName('popup_box_close'); close_this[0].click();});
-    }
+    // Calling the pop-up
+    TWDisplay.show('Support_Allocation', content);
+    $("#go_man").click(function() {
+        window.location.assign(game_data.link_base_pure + "place");
+    });
+    $("#close_this").click(function() {let close_this = document.getElementsByClassName('popup_box_close'); close_this[0].click();});
+}
 
 
-    // Not on correct page so navigate there
-    else {
-        alert("You are not located in the correct directory, I shall move you now. Please run again once you are there");
-        self.location = "http://" + window.location.hostname + "/game.php?screen=overview_villages&mode=units&type=away_detail&group=0&page=-1&type=away_detail&filter_villages=1";
-    }
+// Not on correct page so navigate there
+else {
+    alert("You are not located in the correct directory, I shall move you now. Please run again once you are there");
+    self.location = "http://" + window.location.hostname + "/game.php?screen=overview_villages&mode=units&type=away_detail&group=0&page=-1&type=away_detail&filter_villages=1";
+}
 
-void (0);
 
 
 
